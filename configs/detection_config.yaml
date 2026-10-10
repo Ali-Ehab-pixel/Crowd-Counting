@@ -1,0 +1,87 @@
+# =============================================================================
+# Detection Pipeline Configuration
+# =============================================================================
+# All detection settings in one file. Edit here instead of modifying code.
+
+# --- Model ---
+model:
+  # YOLOv8 nano: smallest model, ideal for RTX 3050 4GB
+  # Options: yolov8n.pt, yolov8s.pt, yolov8m.pt, yolov8l.pt, yolov8x.pt
+  checkpoint: "yolov8n.pt"
+  # COCO person class ID (class 0 in COCO-pretrained YOLOv8)
+  coco_person_class_id: 0
+  # Custom dataset uses single class: 0 = person
+  custom_person_class_id: 0
+
+# --- Inference ---
+inference:
+  # Image size for detection (pixels, square)
+  # 640 is YOLOv8 default; balances small-person visibility vs GPU memory
+  image_size: 640
+  # Minimum confidence to keep a detection (lower = more detections, more FPs)
+  confidence_threshold: 0.25
+  # NMS IoU threshold (lower = more aggressive duplicate removal)
+  nms_iou_threshold: 0.45
+  # Maximum detections per image (raise for very dense scenes)
+  max_detections: 300
+  # Device: "cuda", "cpu", or "cuda:0"
+  device: "cuda"
+
+# --- Training (custom detector, requires bbox annotations) ---
+training:
+  epochs: 100
+  batch_size: 8
+  image_size: 640
+  learning_rate: 0.01
+  # Optimizer: SGD (default for YOLO), Adam, AdamW
+  optimizer: "auto"
+  patience: 15  # early-stopping patience (epochs without improvement)
+  seed: 42
+  workers: 2
+  # Resume from checkpoint (set to path or false)
+  resume: false
+  # Freeze backbone layers (0 = train all, 10 = freeze first 10)
+  freeze: 0
+  # Close mosaic augmentation N epochs before end (dense crowds may benefit)
+  close_mosaic: 10
+
+# --- Augmentation (for custom training) ---
+augmentation:
+  # Geometric
+  hsv_h: 0.015       # hue shift fraction
+  hsv_s: 0.5         # saturation shift fraction
+  hsv_v: 0.3         # value/brightness shift fraction
+  degrees: 5.0       # rotation range (degrees)
+  translate: 0.05    # translation fraction
+  scale: 0.3         # scale range (+/-)
+  shear: 2.0         # shear range (degrees)
+  flipud: 0.0        # vertical flip probability
+  fliplr: 0.5        # horizontal flip probability
+  # Mosaic and mixup (be careful with dense crowds)
+  mosaic: 0.5         # mosaic probability (reduced from 1.0 for crowds)
+  mixup: 0.0          # mixup probability
+  copy_paste: 0.0     # copy-paste probability
+
+# --- Paths ---
+paths:
+  # Existing project paths
+  frames_dir: "data/raw/frames"
+  count_labels: "data/raw/count/labels.csv"
+  existing_splits_dir: "data/splits"
+  # Detection-specific paths
+  bbox_labels_dir: "data/raw/labels"        # YOLO .txt label files go here
+  detection_dataset_yaml: "configs/dataset.yaml"
+  detection_splits_dir: "data/detection_splits"
+  # Outputs
+  detection_outputs_dir: "outputs/detection"
+  visualization_dir: "outputs/detection/visualizations"
+  error_analysis_dir: "outputs/detection/error_analysis"
+  training_output_dir: "outputs/detection/training"
+  annotation_status_file: "data/raw/labels/annotation_status.json"
+
+# --- Evaluation ---
+evaluation:
+  # IoU threshold for matching predicted boxes to ground-truth boxes
+  match_iou_threshold: 0.5
+  # Compare detection counts against existing regression model
+  compare_with_regression: true

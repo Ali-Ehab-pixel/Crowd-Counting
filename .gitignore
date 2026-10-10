@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Large binary dumps exceeding GitHub's 100MB file size limit
+*.npy
+data/images.npy
